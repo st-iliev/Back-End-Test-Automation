@@ -1,0 +1,363 @@
+{
+	"info": {
+		"_postman_id": "f29995e8-07f7-47a2-aefe-e2bb3f720d73",
+		"name": "Idea Center",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20932038"
+	},
+	"item": [
+		{
+			"name": "Craete User",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"userName\": \"stanislav\", \r\n\"email\": \"testemail@gtest.bg\", \r\n\"password\": \"123123\", \r\n\"rePassword\": \"123123\", \r\n\"acceptedAgreement\": true \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/User/Create",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"User",
+						"Create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login and Authentication",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status Code is 200\",() =>{\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"const responseData = pm.response.json()\r",
+							"pm.collectionVariables.set(\"accessToken\",responseData.accessToken)\r",
+							"\r",
+							"pm.test(\"Response body has email, password and accessToken\", ()=>{\r",
+							"    pm.expect(responseData.email).not.to.be.empty\r",
+							"    pm.expect(responseData.password).not.to.be.empty\r",
+							"    pm.expect(responseData.accessToken).not.to.be.empty\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"email\": \"testemail@gtest.bg\",\r\n\"password\": \"123123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/User/Authentication",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"User",
+						"Authentication"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a New Idea",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status Code is 200\",() =>{\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"const ideaTitle = pm.collectionVariables.get(\"randomTitle\")\r",
+							"const responseData = pm.response.json()\r",
+							"\r",
+							"pm.test(\"Successfully created! message has in response\", ()=>{\r",
+							"    pm.expect(responseData.msg).to.eql(\"Successfully created!\")\r",
+							"    pm.expect(responseData.idea.title).to.eql(ideaTitle)\r",
+							"    pm.expect(responseData.idea.description).to.eql(\"random Idea\")\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var randomNumber = Math.floor(Math.random()*1000)\r",
+							"var randomTitle = \"title\" + randomNumber\r",
+							"\r",
+							"pm.collectionVariables.set(\"randomTitle\", randomTitle)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"title\": \"{{randomTitle}}\",\r\n\"url\": \"\",\r\n\"description\": \"random Idea\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/Idea/Create",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"Idea",
+						"Create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List all Ideas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status Code is 200\",() =>{\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"const responseData = pm.response.json()\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response data has array with more than 0 items\", ()=>{\r",
+							"    pm.expect(responseData).to.be.an(\"array\")\r",
+							"    pm.expect(responseData.length).to.be.greaterThan(0)\r",
+							"})\r",
+							"\r",
+							"pm.collectionVariables.set(\"lastIdeaId\",responseData[responseData.length-1].id)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/api/Idea/All",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"Idea",
+						"All"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit the Last Idea",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status Code is 200\",() =>{\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"const responseData = pm.response.json()\r",
+							"\r",
+							"pm.test(\"Response message is 'Edited successfully'\", ()=>{\r",
+							"    pm.expect(responseData.msg).to.eql(\"Edited successfully\")\r",
+							"})\r",
+							"\r",
+							"pm.test(\"The last idea was edited\", ()=>{\r",
+							"    pm.expect(responseData.idea.title).to.eql(\"Idea has been edited\")\r",
+							"    pm.expect(responseData.idea.description).to.eql(\"Edited description\")\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"title\": \"Idea has been edited\", \r\n\"description\": \"Edited description\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/Idea/Edit?ideaId={{lastIdeaId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"Idea",
+						"Edit"
+					],
+					"query": [
+						{
+							"key": "ideaId",
+							"value": "{{lastIdeaId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete the Edited Idea",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response Status Code is 200\",() =>{\r",
+							"    pm.response.to.have.status(200)\r",
+							"})\r",
+							"\r",
+							"const responseData = pm.response.text()\r",
+							"\r",
+							"pm.test(\"Response message is 'The idea is deleted!'\", ()=>{\r",
+							"    pm.expect(responseData).to.be.an(\"string\")\r",
+							"    pm.expect(responseData).to.eql(\"The idea is deleted!\")\r",
+							"})\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"title\": \"Idea has been edited\", \r\n\"description\": \"Edited description\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api/Idea/Delete?ideaId={{lastIdeaId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api",
+						"Idea",
+						"Delete"
+					],
+					"query": [
+						{
+							"key": "ideaId",
+							"value": "{{lastIdeaId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{accessToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://softuni-qa-loadbalancer-2137572849.eu-north-1.elb.amazonaws.com:84",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": ""
+		},
+		{
+			"key": "randomTitle",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "lastIdeaId",
+			"value": ""
+		}
+	]
+}
